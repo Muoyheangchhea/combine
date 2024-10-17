@@ -15,7 +15,7 @@ import base64
 from PIL import Image
 
 # Load your dataset
-df = pd.read_csv("dataset/updated_skincare_products.csv")
+df = pd.read_csv("dataset/updated_skincare_products copy.csv")
 
 app = Flask(__name__)
 app.secret_key = '4545'
@@ -29,9 +29,10 @@ CLIENT = InferenceHTTPClient(
 )
 
 class_mapping = {
-    "Jenis Kulit Wajah - v6 2023-06-17 11-53am": "oily skin",
-    "-": "normal/dry skin"
+    "jenis kulit wajah - v6 2023-06-17 11-53am".lower(): "Oily skin",
+    "-".lower(): "Normal"
 }
+
 
 # Function to recommend products based on skin conditions
 def recommend_products_based_on_classes(classes):
@@ -41,7 +42,7 @@ def recommend_products_based_on_classes(classes):
         skin_condition_lower = skin_condition.lower()
         if skin_condition_lower in df_columns_lower:
             original_column = df.columns[df_columns_lower.index(skin_condition_lower)]
-            filtered_products = df[df[original_column] == 1][['Brand', 'Name', 'Price', 'Ingredients']]
+            filtered_products = df[df[original_column] == 1][['Brand', 'Name', 'Price', 'Rank','Ingredients', 'Img']]
             filtered_products['Ingredients'] = filtered_products['Ingredients'].apply(lambda x: ', '.join(x.split(', ')[:5]))
             products_list = filtered_products.head(3).to_dict(orient='records')  # Limit to top 3 recommendations
             recommendations.append((skin_condition, products_list))
@@ -77,11 +78,11 @@ def predict():
 
             print("Oiliness result:", oilyness_result)
 
-            # Continue with the rest of your logic...
-
                 
             if not oilyness_result['predictions']:
-                skin_labels.add("dryness")
+
+                skin_labels.add("Normal")
+
             else:
                 oilyness_classes = {class_mapping.get(prediction['class'], prediction['class']) for prediction in oilyness_result['predictions'] if prediction['confidence'] >= 0.3}
                 skin_labels.update(oilyness_classes)
@@ -114,16 +115,32 @@ def predict():
 
 @app.route('/analysis')
 def analysis():
-    classes = request.args.get('classes', '[]')
-#     recommendations = request.args.get('recommendations', '[]')
-    annotated_image = request.args.get('annotated_image', '')
+    # Get classes and recommendations from the query params and decode them
+    classes = json.loads(request.args.get('classes', '[]'))  # Convert JSON string to Python list
+    recommendations = json.loads(request.args.get('recommendations', '[]'))  # Convert JSON string to Python list
+    annotated_image = request.args.get('annotated_image', '')  # Annotated image URL
 
+    # Pass the decoded recommendations and classes to the template
     return render_template(
         'analysis.html',
-        classes=json.loads(classes),
-        # recommendations=json.loads(recommendations),
+        classes=classes,
+        recommendations=recommendations,
         annotated_image=annotated_image
     )
+
+# @app.route('/productrec')
+# def productrec():
+#     # Fetch product recommendations and classes from session
+#     classes = session.get('classes', [])
+#     recommendations = session.get('recommendations', [])
+
+#     # Render the product recommendations page
+#     return render_template(
+#         'productrec.html',
+#         classes=classes,
+#         recommendations=recommendations
+#     )
+
 
 
 @app.route('/scan')
@@ -153,16 +170,10 @@ def survey4():
 @app.route('/ingrerec')
 def ingrerec():
         return render_template('ingredientrec.html') 
-@app.route('/productrec')
-def productrec():
-    classes = request.args.get('classes', '[]')
-    recommendations = request.args.get('recommendations', '[]')
 
-    return render_template(
-        'productrec.html',
-        classes=json.loads(classes),
-        recommendations=json.loads(recommendations),
-    )
+
+
+
 @app.route('/allproduct')
 def allproduct():
         return render_template('Product.html') 

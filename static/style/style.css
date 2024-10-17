@@ -26,26 +26,24 @@ header {
     top: 0;
     left: 0;
     width: 100%;
-    padding: 20px 100px;
+    padding: 10px;
     background-color: #d5e5f4;
-    
-    
-    display: flex;
     justify-content: space-between;
     align-items: center;
     z-index: 99;
+    display: flex;
 }
 
 /* Logo Styling */
 .logo {
     display: flex;
     align-items: center;
-    border-radius: 10px;
+    border-radius: 8px;
     
 }
 
 .logo img {
-    height: 60px;
+    height: 50px;
     width: auto;
 }
 .navigation {

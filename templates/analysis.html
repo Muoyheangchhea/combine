@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 
 <head>
@@ -8,8 +8,19 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
     <title>Skin Apsor</title>
     <style>
+        *{
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
         .review-content {
-            margin-top: 300px;
+            margin-top: 170px;
             text-align: center;
             padding: 20px;
         }
@@ -20,7 +31,7 @@
             border-radius: 10px;
             max-width: 100%;
             width: 320px;
-            height: 240px;
+            height: auto;
         }
 
         .btn {
@@ -36,6 +47,121 @@
 
         .btn:hover {
             background-color: #0056b3;
+        }
+
+        .predictions-container, .recommendations-container {
+            text-align: left;
+            margin: 20px;
+        }
+
+        .recommendations-container ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .recommendation-item {
+            border: 1px solid #ddd;
+            padding: 5px 5px;
+            border-radius: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .recommendation-item h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .recommendation-item p {
+            margin: 20px;
+        }
+
+        .recommendation-item img {
+            width: 300px;
+            height: 300px;
+            margin: 10px;
+            border-radius: 10px;
+        }
+
+        .recommendation-item div {
+            flex: 1;
+        }
+
+        .navigation-buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        @media screen and (max-width: 768px) {
+            .review-content {
+                margin-top: 100px;
+                padding: 15px;
+            }
+
+            .btn {
+                font-size: 14px;
+                padding: 10px 20px;
+            }
+
+            .recommendation-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .recommendation-item img {
+                width: 100%;
+                height: auto;
+            }
+
+            .recommendation-item div {
+                margin-top: 10px;
+            }
+
+            .navigation-buttons .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            header {
+                text-align: center;
+            }
+
+            .logo-text {
+                font-size: 20px;
+            }
+
+            .menu-icon {
+                margin-left: auto;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .btn {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+
+            .recommendation-item {
+                padding: 10px;
+            }
+
+            .recommendation-item img {
+                width: 100%;
+                height: auto;
+            }
+
+            .navigation-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .navigation-buttons .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
@@ -85,30 +211,19 @@
                 const sidebar = document.querySelector('.side-bar');
                 sidebar.style.display = 'none';
             }
-
-            // Function to load the captured image from sessionStorage
-            function loadCapturedImage() {
-                const capturedImage = sessionStorage.getItem('capturedImage');
-                if (capturedImage) {
-                    document.getElementById('capturedPhoto').src = capturedImage; // Set the src of the image element
-                }
-            }
-
-            // Load the captured image when the page is loaded
-            window.onload = loadCapturedImage;
         </script>
     </header>
 
     <main>
         <section class="review-section">
             <div class="review-content">
-                <h1>Review The Analysis</h1>
+                <h1>Analysis</h1>
                 <p>This is your skin problems analyzed by our machine learning model based on survey data.</p>
                 
                 <!-- Display the annotated image -->
                 <img src="{{ annotated_image }}" alt="Annotated Image" id="capturedPhoto" />
     
-                <h2>The Analysis</h2>
+                <h2>Result</h2>
     
                 <!-- Display predictions -->
                 <div class="predictions-container">
@@ -116,7 +231,7 @@
                     {% if classes %}
                         <ul>
                             {% for class in classes %}
-                                <ul>{{ class }}</ul>
+                                <li>{{ class }}</li>
                             {% endfor %}
                         </ul>
                     {% else %}
@@ -125,16 +240,25 @@
                 </div>
     
                 <!-- Display recommendations -->
-                <!-- <div class="recommendations-container">
+                <div class="recommendations-container">
                     <h2 class="condition-title">Recommendations:</h2>
                     {% if recommendations %}
                         <ul>
                             {% for recommendation in recommendations %}
                                 <li>
-                                    <strong>{{ recommendation[0] }}:</strong>
+                                    <h3>{{ recommendation[0] }}:</h3> <!-- Category (e.g., Normal, Oily) -->
                                     <ul>
                                         {% for product in recommendation[1] %}
-                                            <li>{{ product.Brand }} - {{ product.Name }} (Price: {{ product.Price }})</li>
+                                            <li class="recommendation-item">
+                                                <img src="{{ url_for('static', filename=product['Img']) }}" alt="{{ product['Name'] }} Image">
+                                                <div>
+                                                    <p><strong>Name:</strong> {{ product.Name }}</p>
+                                                    <p><strong>Brand:</strong> {{ product.Brand }}</p>
+                                                    <p><strong>Price:</strong> {{ product.Price }} $</p>
+                                                    <p><strong>Rank:</strong>  {{ product.Rank }}/5 <!-- Example Rank --></p>
+                                                    <p><strong>Ingredients:</strong> {{ product.Ingredients }}</p>
+                                                </div>
+                                            </li>
                                         {% endfor %}
                                     </ul>
                                 </li>
@@ -143,19 +267,18 @@
                     {% else %}
                         <p>No recommendations available.</p>
                     {% endif %}
-                </div> -->
+                </div>
     
                 <div class="navigation-buttons">
                     <a href="/camera" class="btn go-back-btn">Go Back</a>
-                    <a href="/survey1" class="btn go-back-btn">Next</a>
+                    <a href="/allproduct" class="btn go-back-btn">Next</a>
                 </div>
             </div>
         </section>
     </main>
     
-
     <footer>
-        <!-- Footer content here -->
+        <p>&copy; 2024 Skin Apsor. All Rights Reserved.</p>
     </footer>
 </body>
 
