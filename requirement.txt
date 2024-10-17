@@ -1,0 +1,16 @@
+Flask
+werkzeug
+roboflow
+supervision
+inference-sdk
+opencv-python
+pandas
+joblib
+Pillow
+sqlite3
+json
+uuid
+os
+base64
+cv2
+io
