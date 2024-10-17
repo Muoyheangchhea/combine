@@ -259,7 +259,27 @@
                                 {% for recommendation in recommendations %}
                                     {% for product in recommendation[1] %}
                                     <div class="ingredient-item" onclick="addToCart('{{ product.Name }}')">
-                                        <img src="{{ product.image }}" alt="{{ product.Name }}">
+                                        <!-- <img src="{{ product.image }}" alt="{{ product.Name }}"> -->
+                                        <strong>{{ product.Label }}</strong>
+                                        <p>Brand: {{ product.Brand }}</p>
+                                        <p>Name: {{ product.Name }}</p>
+                                        <p class="price">Price: ${{ product.Price }}</p>
+                                        <p class="rank">Rank: {{ product.Rank }}</p>
+                                    </div>
+                                    {% endfor %}
+                                    {% for product in recommendation[2] %}
+                                    <div class="ingredient-item" onclick="addToCart('{{ product.Name }}')">
+                                        <!-- <img src="{{ product.image }}" alt="{{ product.Name }}"> -->
+                                        <strong>{{ product.Label }}</strong>
+                                        <p>Brand: {{ product.Brand }}</p>
+                                        <p>Name: {{ product.Name }}</p>
+                                        <p class="price">Price: ${{ product.Price }}</p>
+                                        <p class="rank">Rank: {{ product.Rank }}</p>
+                                    </div>
+                                    {% endfor %}
+                                    {% for product in recommendation[3] %}
+                                    <div class="ingredient-item" onclick="addToCart('{{ product.Name }}')">
+                                        <!-- <img src="{{ product.image }}" alt="{{ product.Name }}"> -->
                                         <strong>{{ product.Label }}</strong>
                                         <p>Brand: {{ product.Brand }}</p>
                                         <p>Name: {{ product.Name }}</p>

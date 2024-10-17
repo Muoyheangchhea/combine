@@ -115,13 +115,13 @@ def predict():
 @app.route('/analysis')
 def analysis():
     classes = request.args.get('classes', '[]')
-    recommendations = request.args.get('recommendations', '[]')
+#     recommendations = request.args.get('recommendations', '[]')
     annotated_image = request.args.get('annotated_image', '')
 
     return render_template(
         'analysis.html',
         classes=json.loads(classes),
-        recommendations=json.loads(recommendations),
+        # recommendations=json.loads(recommendations),
         annotated_image=annotated_image
     )
 
@@ -155,7 +155,14 @@ def ingrerec():
         return render_template('ingredientrec.html') 
 @app.route('/productrec')
 def productrec():
-        return render_template('productrec.html') 
+    classes = request.args.get('classes', '[]')
+    recommendations = request.args.get('recommendations', '[]')
+
+    return render_template(
+        'productrec.html',
+        classes=json.loads(classes),
+        recommendations=json.loads(recommendations),
+    )
 @app.route('/allproduct')
 def allproduct():
         return render_template('Product.html') 

@@ -14,12 +14,20 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html, body{
             height: 100%;
             width: 100%;
             overflow: hidden;
             font-family: Arial, sans-serif;
         }
+
+        /* body {
+            height: 40%;
+            width: 60%;
+            padding-left: 450px;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        } */
 
         .scan-container {
             display: flex;
@@ -55,6 +63,8 @@
 
         /* Video Section */
         .video-container {
+            width: 100%;
+            height: 60%;
             flex: 1;
             position: relative;
             background-color: #000;
@@ -120,10 +130,33 @@
         .btn:hover {
             background-color: #0056b3;
         }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            z-index: 1000;
+            display: none; /* Initially hidden */
+        }
+
+        .loading-overlay .spinner {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
     </style>
 </head>
 
-<body class="scan-container">
+<body class="scan-container" align="center">
+    
     <!-- Header -->
     <header>
         <div class="logo">
@@ -142,9 +175,7 @@
         <canvas id="canvas" class="hidden"></canvas>
 
         <svg class="face-overlay" id="overlay" viewBox="0 0 100 100">
-            <ellipse cx="50" cy="50" rx="40" ry="55" stroke="white" stroke-width="1" fill="none" stroke-dasharray="5,5" />
-            <line x1="20" y1="50" x2="80" y2="50" stroke="white" stroke-width="1" stroke-dasharray="5,5" />
-            <line x1="50" y1="10" x2="50" y2="90" stroke="white" stroke-width="1" stroke-dasharray="5,5" />
+            <!-- Overlay SVG content -->
         </svg>
     </div>
 
@@ -155,6 +186,12 @@
         <button id="retakePhoto" class="btn hidden">Retake</button>
     </div>
 
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <i class="fas fa-spinner fa-spin spinner"></i>
+        <span>Analyzing, please wait...</span>
+    </div>
+
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
@@ -162,12 +199,26 @@
         const takePhotoBtn = document.getElementById('takePhoto');
         const confirmPhotoBtn = document.getElementById('confirmPhoto');
         const retakePhotoBtn = document.getElementById('retakePhoto');
+        const loadingOverlay = document.getElementById('loadingOverlay');
         const context = canvas.getContext('2d');
+
+        // Function to adjust video and canvas to fit phone width
+        function adjustCanvasSize() {
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+
+            // Ensure video and canvas use full width and adjust height to maintain aspect ratio
+            video.width = screenWidth;
+            video.height = screenHeight;
+            canvas.width = screenWidth;
+            canvas.height = screenHeight;
+        }
 
         // Start video stream without mirroring
         navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
             .then(stream => {
                 video.srcObject = stream;
+                adjustCanvasSize();  // Adjust the canvas to fit screen size
             })
             .catch(err => {
                 alert('Unable to access camera: ' + err.message);
@@ -175,6 +226,7 @@
 
         // Take Photo
         takePhotoBtn.addEventListener('click', () => {
+            // Set canvas width and height to match phone screen dimensions
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
 
@@ -207,6 +259,9 @@
         confirmPhotoBtn.addEventListener('click', async () => {
             const imageData = canvas.toDataURL('image/jpeg');  // Capture image as base64
 
+            // Show loading overlay
+            loadingOverlay.style.display = 'flex';
+
             // Send the image data to the backend for analysis
             const response = await fetch('/predict', {
                 method: 'POST',
@@ -218,6 +273,9 @@
 
             const result = await response.json();
 
+            // Hide loading overlay
+            loadingOverlay.style.display = 'none';
+
             // Redirect to analysis page with the prediction data
             if (response.status === 200) {
                 window.location.href = `/analysis?classes=${JSON.stringify(result.classes)}&recommendations=${JSON.stringify(result.recommendations)}&annotated_image=${result.annotated_image}`;
@@ -225,6 +283,9 @@
                 console.error('Error in prediction', result);
             }
         });
+
+        // Adjust the canvas when the screen is resized
+        window.addEventListener('resize', adjustCanvasSize);
     </script>
 </body>
 
